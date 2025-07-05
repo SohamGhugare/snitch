@@ -1,15 +1,22 @@
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
 
-async function getFiles(owner: string, repo: string, path = ''): Promise<any[]> {
+interface GitHubFile {
+  name: string;
+  path: string;
+  type: 'file' | 'dir';
+  download_url?: string;
+}
+
+async function getFiles(owner: string, repo: string, path = ''): Promise<GitHubFile[]> {
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
   const res = await axios.get(url, {
     headers: {
       Authorization: `token ${process.env.NEXT_GITHUB_TOKEN}`
     }
   });
-  let files: any[] = [];
-  for (const item of res.data) {
+  let files: GitHubFile[] = [];
+  for (const item of res.data as GitHubFile[]) {
     if (item.type === 'file' && (item.name.endsWith('.sol') || item.name.endsWith('.cdc'))) {
       files.push(item);
     } else if (item.type === 'dir') {
@@ -31,7 +38,7 @@ export async function GET(req: NextRequest) {
     // Fetch file contents
     const fileContents = await Promise.all(
       files.map(async (file) => {
-        const contentRes = await axios.get(file.download_url);
+        const contentRes = await axios.get(file.download_url!);
         return {
           path: file.path,
           content: contentRes.data,
@@ -39,8 +46,7 @@ export async function GET(req: NextRequest) {
       })
     );
     return NextResponse.json(fileContents);
-  } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 } 

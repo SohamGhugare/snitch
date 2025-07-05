@@ -1,6 +1,11 @@
 "use client";
 import { useState } from "react";
 
+interface SmartContractFile {
+  path: string;
+  content: string;
+}
+
 const SYSTEM_PROMPT = `You are an expert smart contract auditor and performance optimizer. You will receive a smart contract's source code and your job is to perform a **deep technical audit** and **suggest optimal improvements** across multiple dimensions.
 
 Go through the code carefully and generate a detailed, structured report with findings and fixes for each of the following categories:
@@ -44,18 +49,18 @@ Generate your response in a structured audit report format with the following se
 
 export default function SmartContractsButton() {
   const [loading, setLoading] = useState(false);
-  const [contracts, setContracts] = useState<any[]>([]);
+  const [contracts, setContracts] = useState<SmartContractFile[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedContract, setSelectedContract] = useState<string>("");
   const [auditLoading, setAuditLoading] = useState(false);
   const [auditReport, setAuditReport] = useState<string>("");
   const [auditError, setAuditError] = useState<string>("");
-  const [step, setStep] = useState<0 | 1 | 2>(0); // 0: idle, 1: fetching, 2: auditing
+  const [showAuditReport, setShowAuditReport] = useState(false);
+  const [showStepper, setShowStepper] = useState(false);
   const [stepsStatus, setStepsStatus] = useState([
     { label: "Fetching Smart Contract contents", done: false },
     { label: "Auditing...", done: false },
   ]);
-  const [showAuditReport, setShowAuditReport] = useState(false);
 
   // For demo, hardcode a repo. Replace with user input or prop as needed.
   const owner = "SohamGhugare";
@@ -69,24 +74,24 @@ export default function SmartContractsButton() {
     setAuditReport("");
     setAuditError("");
     setShowAuditReport(false);
-    setStep(1);
+    setShowStepper(true);
     setStepsStatus([
       { label: "Fetching Smart Contract contents", done: false },
       { label: "Auditing...", done: false },
     ]);
     try {
+      // Step 1: Fetch file list and contents
       const res = await fetch(`/api/get-smart-contracts?owner=${owner}&repo=${repo}`);
       if (!res.ok) throw new Error("Failed to fetch smart contracts");
-      const data = await res.json();
+      const data: SmartContractFile[] = await res.json();
       setContracts(data);
       setStepsStatus([
         { label: "Fetched Smart Contract contents", done: true },
         { label: "Auditing...", done: false },
       ]);
-      setStep(2);
-    } catch (err: any) {
-      setError(err.message);
-      setStep(0);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : String(err));
+      setShowStepper(false);
     } finally {
       setLoading(false);
     }
@@ -107,17 +112,17 @@ export default function SmartContractsButton() {
       const res = await fetch("/api/audit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contract: contract.content, systemPrompt: SYSTEM_PROMPT }),
+        body: JSON.stringify({ contract: contract?.content, systemPrompt: SYSTEM_PROMPT }),
       });
       if (!res.ok) throw new Error("Failed to audit contract");
-      const data = await res.json();
+      const data: { auditReport: string } = await res.json();
       setAuditReport(data.auditReport);
       setStepsStatus([
         { label: "Fetched Smart Contract contents", done: true },
         { label: "Audit report generated.", done: true },
       ]);
-    } catch (err: any) {
-      setAuditError(err.message);
+    } catch (err: unknown) {
+      setAuditError(err instanceof Error ? err.message : String(err));
       setStepsStatus([
         { label: "Fetched Smart Contract contents", done: true },
         { label: "Auditing failed", done: false },
@@ -159,14 +164,16 @@ export default function SmartContractsButton() {
         </div>
       )}
       {/* Stepper UI */}
-      <div className="w-full mt-6">
-        {stepsStatus.map((stepObj, idx) => (
-          <div key={idx} className="flex items-center mb-2">
-            <div className={`w-3 h-3 rounded-full mr-2 ${stepObj.done ? 'bg-green-500' : 'bg-gray-500'}`}></div>
-            <span className={stepObj.done ? 'text-green-400' : 'text-white'}>{stepObj.label}</span>
-          </div>
-        ))}
-      </div>
+      {showStepper && (
+        <div className="w-full mt-6">
+          {stepsStatus.map((stepObj, idx) => (
+            <div key={idx} className="flex items-center mb-2">
+              <div className={`w-3 h-3 rounded-full mr-2 ${stepObj.done ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+              <span className={stepObj.done ? 'text-green-400' : 'text-white'}>{stepObj.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
       {/* View Audit Report Button */}
       {stepsStatus[1].done && auditReport && (
         <button
