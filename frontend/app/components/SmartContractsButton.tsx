@@ -7,7 +7,7 @@ interface SmartContractFile {
   content: string;
 }
 
-const SYSTEM_PROMPT = `You are an expert smart contract auditor and performance optimizer. You will receive a smart contract's source code and your job is to perform a **deep technical audit** and **suggest optimal improvements** across multiple dimensions.
+const SYSTEM_PROMPT = `You are an expert smart contract auditor and performance optimizer. You will receive a smart contract's source code and your job is to perform a **deep technical audit** and **suggest optimal improvements** across multiple dimensions. If the provided code is not a solidty or cadence smart contract, you should return "This is not a valid smart contract. We currently only support solidty and cadence smart contracts.".
 
 Go through the code carefully and generate a detailed, structured report with findings and fixes for each of the following categories:
 
@@ -46,7 +46,13 @@ Generate your response in a structured audit report format with the following se
 - **Description**: A short summary of the issue
 - **Explanation**: Why it's a problem and potential impact
 - **Recommendation**: How to fix or improve it
-- **Code Reference**: Line numbers or code snippets involved`;
+- **Code Reference**: Line numbers or code snippets involved
+
+---
+
+At the end of the report, calculate and display a final audit score out of 100 points with the below format.
+
+Audit Score: 85`;
 
 export default function SmartContractsButton() {
   const [loading, setLoading] = useState(false);
