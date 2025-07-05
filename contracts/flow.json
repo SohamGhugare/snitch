@@ -3,7 +3,8 @@
 		"AuditRegistry": {
 			"source": "cadence/contracts/AuditRegistry.cdc",
 			"aliases": {
-				"testing": "0000000000000007"
+				"testing": "0000000000000007",
+				"testnet": "0x2655b0e78244c4fa"
 			}
 		},
 		"Counter": {
@@ -25,6 +26,13 @@
 			"key": {
 				"type": "file",
 				"location": "emulator-account.pkey"
+			}
+		},
+		"snitch-test1": {
+			"address": "2655b0e78244c4fa",
+			"key": {
+				"type": "file",
+				"location": "snitch-test1.pkey"
 			}
 		},
 		"test": {
@@ -55,6 +63,9 @@
 			]
 		},
 		"testnet": {
+			"snitch-test1": [
+				"AuditRegistry"
+			],
 			"testnet-acc": [
 				"AuditRegistry"
 			]

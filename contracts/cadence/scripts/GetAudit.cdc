@@ -1,8 +1,14 @@
 import "AuditRegistry"
 
 access(all)
-fun main(): AuditRegistry.Audit?{
-    let audit = AuditRegistry.getAudit(_contract: 0xf8d6e0586b0a20c7)
+fun main(): [AuditRegistry.Audit]? {
+    let audits = AuditRegistry.getAudit(_contract: 0xf8d6e0586b0a20c3)
 
-    return audit ?? AuditRegistry.Audit(_score: 0, _timestamp: 0, _auditor: 0x00, _reportHash: "")
+    if let audits = audits {
+        log("Audits: ".concat(audits[0].id.toString()))
+    } else {
+        log("No audits found")
+    }
+    
+    return audits
 }

@@ -7,14 +7,24 @@ transaction {
 
     execute {
         // Add audit to the audit registry
-        AuditRegistry.addAudit(_contract: 0xf8d6e0586b0a20c7, _score: 96, _timestamp: 1714953600, _auditor: 0x01, _reportHash: "0x12345")
+        let auditId: UInt16 = 1
+        let auditScore: Int8 = 85
+        AuditRegistry.addAudit(_contract: 0xf8d6e0586b0a20c3, _id: auditId, _score: auditScore, _timestamp: 1714953600, _auditor: 0x01, _reportHash: "0x12345")
 
         // Get audit from the audit registry
-        let audit = AuditRegistry.getAudit(_contract: 0xf8d6e0586b0a20c7)
+        let audits = AuditRegistry.getAudit(_contract: 0xf8d6e0586b0a20c3)
 
-        log("Audit score: ".concat(audit?.score?.toString() ?? "0"))
-        log("Audit timestamp: ".concat(audit?.timestamp?.toString() ?? "0"))
-        log("Audit auditor: ".concat(audit?.auditor?.toString() ?? "0"))
-        log("Audit report hash: ".concat(audit?.reportHash ?? "0"))
+        if let audits = audits {
+            for audit in audits {
+                log("Audit ID: ".concat(audit.id.toString()))
+                log("Score: ".concat(audit.score.toString()))
+                log("Timestamp: ".concat(audit.timestamp.toString()))
+                log("Auditor: ".concat(audit.auditor.toString()))
+                log("Report Hash: ".concat(audit.reportHash))
+                log("---")
+            }
+        } else {
+            log("No audits found for this contract")
+        }
     }
 }
