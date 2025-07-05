@@ -1,16 +1,17 @@
-import { SignedIn } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
 import SmartContractsButton from "./components/SmartContractsButton";
+import { SignedIn } from "@clerk/nextjs";
 
-export default async function Home() {
-  const user = await currentUser();
-  console.log(user?.backupCodeEnabled);
+export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center" style={{ height: 'calc(100vh - 80px)' }}>
-      <h1 className="text-6xl font-bold text-white">Snitch</h1>
-      <SmartContractsButton />
-      <SignedIn>
-      </SignedIn>
-    </div>
+    <main className="flex min-h-screen flex-col items-center overflow-y-auto">
+      <div className="flex flex-col items-center justify-center w-full p-8">
+        <h1 className="text-8xl font-bold text-center text-[#00ff9d] mb-12 font-mono">
+          Snitch
+        </h1>
+        <SmartContractsButton />
+        <SignedIn>
+        </SignedIn>
+      </div>
+    </main>
   );
 }
