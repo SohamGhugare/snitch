@@ -4,8 +4,20 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
 import { WalletConnectButton } from './WalletConnectButton';
+import { useEffect } from 'react';
+import * as fcl from '@onflow/fcl';
 
 export default function Navbar() {
+  useEffect(() => {
+    fcl.config(
+      {
+        "accessNode.api": "https://rest-testnet.onflow.org",
+        "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn",
+        "flow.network": "testnet"
+      }
+    )
+  }, []);
+  
   return (
     <nav className="flex justify-between items-center px-6 py-4">
       <Link href="/" className="flex items-center gap-1">
