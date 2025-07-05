@@ -3,6 +3,8 @@ import { Lato } from "next/font/google";
 import "./globals.css";
 import Navbar from './components/Navbar';
 import { ClerkProvider } from '@clerk/nextjs';
+import '@rainbow-me/rainbowkit/styles.css';
+import { Providers } from './providers';
 
 const lato = Lato({
   weight: ['100', '300', '400', '700', '900'],
@@ -23,10 +25,12 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body className={lato.className}>
-          <div className="min-h-screen bg-black">
-            <Navbar />
-            {children}
-          </div>
+          <Providers>
+            <div className="min-h-screen bg-black">
+              <Navbar />
+              {children}
+            </div>
+          </Providers>
         </body>
       </html>
     </ClerkProvider>
