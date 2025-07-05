@@ -26,12 +26,6 @@ export default function RootLayout({
           <div className="min-h-screen bg-black">
             <Navbar />
             {children}
-            {/* <SignedOut>
-              <SignInButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn> */}
           </div>
         </body>
       </html>
