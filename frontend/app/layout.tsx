@@ -5,6 +5,9 @@ import Navbar from './components/Navbar';
 import { ClerkProvider } from '@clerk/nextjs';
 import '@rainbow-me/rainbowkit/styles.css';
 import { Providers } from './providers';
+import { FlowProvider } from "@onflow/kit";
+
+import flowJson from "../flow.json"
 
 const lato = Lato({
   weight: ['100', '300', '400', '700', '900'],
@@ -22,17 +25,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={lato.className}>
-          <Providers>
-            <div className="min-h-screen bg-black">
+    
+      <ClerkProvider>
+        <html lang="en">
+          <body className={lato.className}>
+            <Providers>
               <Navbar />
               {children}
-            </div>
-          </Providers>
-        </body>
-      </html>
-    </ClerkProvider>
+            </Providers>
+          </body>
+        </html>
+      </ClerkProvider>
+    
   );
 }

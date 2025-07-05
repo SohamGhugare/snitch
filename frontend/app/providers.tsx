@@ -1,20 +1,39 @@
 'use client';
 
 import type React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { WagmiProvider } from 'wagmi';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
-
-import { config } from '../wagmi';
-
-const queryClient = new QueryClient();
+import { Toaster } from 'react-hot-toast';
+import { FlowProvider } from '@onflow/kit';
+import flowJson from '../flow.json';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <FlowProvider 
+      config={{
+        accessNodeUrl: 'https://rest-testnet.onflow.org',
+        flowNetwork: 'testnet',
+        discoveryWallet: 'https://fcl-discovery.onflow.org/testnet/authn',
+      }}
+      flowJson={flowJson}
+    >
+      {children}
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: '#000',
+            color: '#00ff9d',
+            border: '1px solid #00ff9d',
+            fontFamily: 'monospace',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#00ff9d',
+              secondary: '#000',
+            },
+          },
+        }}
+      />
+    </FlowProvider>
   );
 }

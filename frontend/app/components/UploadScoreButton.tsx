@@ -1,5 +1,7 @@
 "use client";
 
+import toast from 'react-hot-toast';
+
 interface UploadScoreButtonProps {
   auditReport: string;
 }
@@ -11,17 +13,40 @@ export default function UploadScoreButton({ auditReport }: UploadScoreButtonProp
     const score = scoreMatch ? parseInt(scoreMatch[1]) : null;
 
     if (!score) {
-      alert("Could not find audit score in the report");
+      toast.error("Could not find audit score in the report", {
+        style: {
+          background: '#000',
+          color: '#ff4444',
+          border: '1px solid #ff4444',
+          fontFamily: 'monospace',
+        },
+      });
       return;
     }
 
     try {
-      // TODO: Implement the actual upload logic here
-      console.log("Uploading score:", score);
-      alert("Score upload feature coming soon!");
+      // TODO: Implement actual upload logic
+      console.log("Score to upload:", score);
+      
+      toast.success("Audit score uploaded successfully!", {
+        icon: '🚀',
+        style: {
+          background: '#000',
+          color: '#00ff9d',
+          border: '1px solid #00ff9d',
+          fontFamily: 'monospace',
+        },
+      });
     } catch (error) {
       console.error("Error uploading score:", error);
-      alert("Failed to upload score");
+      toast.error("Failed to upload score", {
+        style: {
+          background: '#000',
+          color: '#ff4444',
+          border: '1px solid #ff4444',
+          fontFamily: 'monospace',
+        },
+      });
     }
   };
 

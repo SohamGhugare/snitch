@@ -1,0 +1,74 @@
+{
+	"contracts": {
+		"AuditRegistry": {
+			"source": "cadence/contracts/AuditRegistry.cdc",
+			"aliases": {
+				"testing": "0000000000000007",
+				"testnet": "0x2655b0e78244c4fa"
+			}
+		},
+		"Counter": {
+			"source": "cadence/contracts/Counter.cdc",
+			"aliases": {
+				"testing": "0000000000000007"
+			}
+		}
+	},
+	"networks": {
+		"emulator": "127.0.0.1:3569",
+		"mainnet": "access.mainnet.nodes.onflow.org:9000",
+		"testing": "127.0.0.1:3569",
+		"testnet": "access.devnet.nodes.onflow.org:9000"
+	},
+	"accounts": {
+		"emulator-account": {
+			"address": "f8d6e0586b0a20c7",
+			"key": {
+				"type": "file",
+				"location": "emulator-account.pkey"
+			}
+		},
+		"snitch-test1": {
+			"address": "2655b0e78244c4fa",
+			"key": {
+				"type": "file",
+				"location": "snitch-test1.pkey"
+			}
+		},
+		"test": {
+			"address": "179b6b1cb6755e31",
+			"key": "7e835d58c29c325ef9f929c87c10b50238dd3183fa7e99bdb47c7d24a752f423"
+		},
+		"testnet-acc": {
+			"address": "d1f37545ecfb9cde",
+			"key": {
+				"type": "file",
+				"location": "testnet-acc.pkey"
+			}
+		}
+	},
+	"deployments": {
+		"emulator": {
+			"emulator-account": [
+				"Counter",
+				"AuditRegistry"
+			],
+			"test": [
+				"AuditRegistry"
+			]
+		},
+		"testing": {
+			"test": [
+				"AuditRegistry"
+			]
+		},
+		"testnet": {
+			"snitch-test1": [
+				"AuditRegistry"
+			],
+			"testnet-acc": [
+				"AuditRegistry"
+			]
+		}
+	}
+}
