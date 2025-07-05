@@ -7,9 +7,9 @@ transaction {
 
     execute {
         // Add audit to the audit registry
-        let auditId: UInt16 = 1
-        let auditScore: Int8 = 85
-        AuditRegistry.addAudit(_contract: 0xf8d6e0586b0a20c3, _id: auditId, _score: auditScore, _timestamp: 1714953600, _auditor: 0x01, _reportHash: "0x12345")
+        let auditId: UInt16 = 2
+        let auditScore: Int8 = 96
+        AuditRegistry.addAudit(_contract: 0xf8d6e0586b0a20c3, _id: auditId, _score: auditScore, _timestamp: 1714953600, _auditor: 0x01, _reportHash: "0x78907")
 
         // Get audit from the audit registry
         let audits = AuditRegistry.getAudit(_contract: 0xf8d6e0586b0a20c3)
