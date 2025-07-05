@@ -1,4 +1,5 @@
 import SmartContractsButton from "./components/SmartContractsButton";
+import SearchAudits from "./components/SearchAudits";
 import { SignedIn } from "@clerk/nextjs";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
         <h1 className="text-8xl font-bold text-center text-[#00ff9d] mb-12 font-mono">
           Snitch
         </h1>
+        <SearchAudits />
         <SmartContractsButton />
         <SignedIn>
         </SignedIn>
