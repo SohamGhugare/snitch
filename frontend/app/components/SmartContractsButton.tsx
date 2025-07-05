@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import StepIndicator from "./StepIndicator";
 
 interface SmartContractFile {
   path: string;
@@ -57,9 +58,9 @@ export default function SmartContractsButton() {
   const [auditError, setAuditError] = useState<string>("");
   const [showAuditReport, setShowAuditReport] = useState(false);
   const [showStepper, setShowStepper] = useState(false);
-  const [stepsStatus, setStepsStatus] = useState([
-    { label: "Fetching Smart Contract contents", done: false },
-    { label: "Auditing...", done: false },
+  const [steps, setSteps] = useState([
+    { label: "Fetching Smart Contract contents", done: false, active: false },
+    { label: "Auditing smart contract", done: false, active: false },
   ]);
 
   // For demo, hardcode a repo. Replace with user input or prop as needed.
@@ -75,19 +76,19 @@ export default function SmartContractsButton() {
     setAuditError("");
     setShowAuditReport(false);
     setShowStepper(true);
-    setStepsStatus([
-      { label: "Fetching Smart Contract contents", done: false },
-      { label: "Auditing...", done: false },
+    setSteps([
+      { label: "Fetching Smart Contract contents", done: false, active: true },
+      { label: "Auditing smart contract", done: false, active: false },
     ]);
+    
     try {
-      // Step 1: Fetch file list and contents
       const res = await fetch(`/api/get-smart-contracts?owner=${owner}&repo=${repo}`);
       if (!res.ok) throw new Error("Failed to fetch smart contracts");
       const data: SmartContractFile[] = await res.json();
       setContracts(data);
-      setStepsStatus([
-        { label: "Fetched Smart Contract contents", done: true },
-        { label: "Auditing...", done: false },
+      setSteps([
+        { label: "Smart Contract contents fetched", done: true, active: false },
+        { label: "Auditing smart contract", done: false, active: false },
       ]);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
@@ -103,10 +104,11 @@ export default function SmartContractsButton() {
     setAuditReport("");
     setAuditError("");
     setShowAuditReport(false);
-    setStepsStatus([
-      { label: "Fetched Smart Contract contents", done: true },
-      { label: "Auditing...", done: false },
+    setSteps([
+      { label: "Smart Contract contents fetched", done: true, active: false },
+      { label: "Auditing smart contract", done: false, active: true },
     ]);
+
     try {
       const contract = contracts.find((c) => c.path === selectedContract);
       const res = await fetch("/api/audit", {
@@ -117,15 +119,15 @@ export default function SmartContractsButton() {
       if (!res.ok) throw new Error("Failed to audit contract");
       const data: { auditReport: string } = await res.json();
       setAuditReport(data.auditReport);
-      setStepsStatus([
-        { label: "Fetched Smart Contract contents", done: true },
-        { label: "Audit report generated.", done: true },
+      setSteps([
+        { label: "Smart Contract contents fetched", done: true, active: false },
+        { label: "Audit report generated", done: true, active: false },
       ]);
     } catch (err: unknown) {
       setAuditError(err instanceof Error ? err.message : String(err));
-      setStepsStatus([
-        { label: "Fetched Smart Contract contents", done: true },
-        { label: "Auditing failed", done: false },
+      setSteps([
+        { label: "Smart Contract contents fetched", done: true, active: false },
+        { label: "Auditing failed", done: false, active: false },
       ]);
     } finally {
       setAuditLoading(false);
@@ -135,17 +137,21 @@ export default function SmartContractsButton() {
   return (
     <div className="flex flex-col items-center mt-8 w-full max-w-2xl">
       <button
-        className="px-6 py-2 border border-white text-white hover:bg-white hover:text-black transition-colors mb-4"
+        className="px-6 py-2 border border-[#00ff9d] text-[#00ff9d] hover:bg-[#00ff9d] hover:text-black transition-colors mb-4 font-mono"
         onClick={fetchContracts}
         disabled={loading}
       >
         {loading ? "Loading..." : "Get Smart Contracts"}
       </button>
-      {error && <div className="text-red-400 mb-2">{error}</div>}
+      
+      {error && (
+        <div className="text-red-400 mb-2 font-mono">{error}</div>
+      )}
+      
       {contracts.length > 0 && (
         <div className="flex flex-col items-center w-full">
           <select
-            className="px-4 py-2 border border-white bg-black text-white mb-4 w-70"
+            className="px-4 py-2 border border-[#00ff9d] bg-black text-[#00ff9d] mb-4 w-70 font-mono focus:outline-none focus:ring-2 focus:ring-[#00ff9d] focus:border-transparent"
             value={selectedContract}
             onChange={e => setSelectedContract(e.target.value)}
           >
@@ -155,7 +161,7 @@ export default function SmartContractsButton() {
             ))}
           </select>
           <button
-            className="px-6 py-2 border border-white text-white hover:bg-white hover:text-black transition-colors"
+            className="px-6 py-2 border border-[#00ff9d] text-[#00ff9d] hover:bg-[#00ff9d] hover:text-black transition-colors font-mono"
             onClick={handleAudit}
             disabled={!selectedContract || auditLoading}
           >
@@ -163,37 +169,36 @@ export default function SmartContractsButton() {
           </button>
         </div>
       )}
+
       {/* Stepper UI */}
       {showStepper && (
-        <div className="w-full mt-6">
-          {stepsStatus.map((stepObj, idx) => (
-            <div key={idx} className="flex items-center mb-2">
-              <div className={`w-3 h-3 rounded-full mr-2 ${stepObj.done ? 'bg-green-500' : 'bg-gray-500'}`}></div>
-              <span className={stepObj.done ? 'text-green-400' : 'text-white'}>{stepObj.label}</span>
-            </div>
-          ))}
+        <div className="w-full mt-8">
+          <StepIndicator steps={steps} />
         </div>
       )}
+
       {/* View Audit Report Button */}
-      {stepsStatus[1].done && auditReport && (
+      {steps[1].done && auditReport && (
         <button
-          className="mt-6 px-6 py-2 border border-green-500 text-green-400 hover:bg-green-500 hover:text-black transition-colors"
+          className="mt-8 px-6 py-2 border border-[#00ff9d] text-[#00ff9d] hover:bg-[#00ff9d] hover:text-black transition-colors font-mono"
           onClick={() => setShowAuditReport((v) => !v)}
         >
           {showAuditReport ? "Hide Audit Report" : "View Audit Report"}
         </button>
       )}
+
       {/* Audit Report Display */}
       {showAuditReport && auditReport && (
-        <div className="w-full mt-6 p-4 bg-gray-800 rounded border border-green-500">
-          <h2 className="text-xl font-bold text-green-400 mb-2">Audit Report</h2>
-          <pre className="overflow-x-auto text-sm text-white bg-black p-2 rounded whitespace-pre-wrap">
+        <div className="w-full mt-6 p-4 bg-black/30 rounded border border-[#00ff9d] backdrop-blur-sm">
+          <h2 className="text-xl font-bold text-[#00ff9d] mb-2 font-mono">Audit Report</h2>
+          <pre className="overflow-x-auto text-sm text-white bg-black/50 p-4 rounded font-mono whitespace-pre-wrap">
             {auditReport}
           </pre>
         </div>
       )}
+
       {auditError && (
-        <div className="w-full mt-6 text-center text-red-400">{auditError}</div>
+        <div className="w-full mt-6 text-center text-red-400 font-mono">{auditError}</div>
       )}
     </div>
   );
