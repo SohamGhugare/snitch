@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   useFlowMutate,
   useFlowTransactionStatus,
@@ -16,6 +16,7 @@ interface UploadScoreButtonProps {
 
 export default function UploadScoreButton({ auditReport, repoOwner, contractName }: UploadScoreButtonProps) {
   const { user } = useFlowCurrentUser();
+  const [showTxId, setShowTxId] = useState(false);
   const {
     mutate: uploadAudit,
     isPending: txPending,
@@ -40,6 +41,7 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
           fontFamily: 'monospace',
         },
       });
+      setShowTxId(true);
     }
   }, [transactionStatus?.status, txId]);
 
@@ -167,41 +169,57 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
   }, [txStatusError]);
 
   return (
-    <button
-      onClick={handleUpload}
-      disabled={txPending}
-      className={`
-        px-6 py-2 border-2 border-[#00ff9d] text-[#00ff9d] hover:bg-[#00ff9d] hover:text-black 
-        transition-all duration-300 font-mono flex items-center gap-2
-        bg-black/20 backdrop-blur-sm
-        ${txPending ? 'opacity-50 cursor-not-allowed' : ''}
-      `}
-    >
-      <svg 
-        className={`w-5 h-5 transition-transform duration-300 ${txPending ? 'animate-spin' : ''}`}
-        fill="none" 
-        stroke="currentColor" 
-        viewBox="0 0 24 24"
+    <div className="flex items-center gap-3">
+      <button
+        onClick={handleUpload}
+        disabled={txPending}
+        className={`
+          px-6 py-2 border-2 border-[#00ff9d] text-[#00ff9d] hover:bg-[#00ff9d] hover:text-black 
+          transition-all duration-300 font-mono flex items-center gap-2
+          bg-black/20 backdrop-blur-sm
+          ${txPending ? 'opacity-50 cursor-not-allowed' : ''}
+        `}
       >
-        {txPending ? (
-          // Loading spinner icon
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          />
-        ) : (
-          // Upload icon
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-          />
-        )}
-      </svg>
-      {txPending ? 'Uploading...' : 'Upload Score'}
-    </button>
+        <svg 
+          className={`w-5 h-5 transition-transform duration-300 ${txPending ? 'animate-spin' : ''}`}
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          {txPending ? (
+            // Loading spinner icon
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          ) : (
+            // Upload icon
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={2} 
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+            />
+          )}
+        </svg>
+        {txPending ? 'Uploading...' : 'Upload Score'}
+      </button>
+      {showTxId && txId && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-white/30">{">_"}</span>
+          <span className="text-white/70 font-mono">tx:</span>
+          <a 
+            href={`https://testnet.flowscan.io/tx/${txId}?tab=events`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#00ff9d] hover:text-[#00ff9d]/80 transition-colors font-mono"
+          >
+            {txId.slice(0, 8)}...{txId.slice(-6)}
+          </a>
+        </div>
+      )}
+    </div>
   );
 } 
