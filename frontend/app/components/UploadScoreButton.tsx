@@ -10,9 +10,11 @@ import toast from 'react-hot-toast';
 
 interface UploadScoreButtonProps {
   auditReport: string;
+  repoOwner: string;
+  contractName: string;
 }
 
-export default function UploadScoreButton({ auditReport }: UploadScoreButtonProps) {
+export default function UploadScoreButton({ auditReport, repoOwner, contractName }: UploadScoreButtonProps) {
   const { user } = useFlowCurrentUser();
   const {
     mutate: uploadAudit,
@@ -54,6 +56,18 @@ export default function UploadScoreButton({ auditReport }: UploadScoreButtonProp
       return;
     }
 
+    if (!repoOwner || !contractName) {
+      toast.error("Contract information is missing", {
+        style: {
+          background: '#000',
+          color: '#ff4444',
+          border: '1px solid #ff4444',
+          fontFamily: 'monospace',
+        },
+      });
+      return;
+    }
+
     // Extract score from the audit report
     const scoreMatch = auditReport.match(/Audit Score: (\d+)/);
     const score = scoreMatch ? parseInt(scoreMatch[1]) : null;
@@ -73,7 +87,7 @@ export default function UploadScoreButton({ auditReport }: UploadScoreButtonProp
     try {
       uploadAudit({
         cadence: `
-          import AuditRegistry from 0x2655b0e78244c4fa
+          import AuditRegistry from 0xd61e4386e551be09
 
           transaction {
               prepare(acct: &Account) {
@@ -85,7 +99,7 @@ export default function UploadScoreButton({ auditReport }: UploadScoreButtonProp
                   let auditId: UInt16 = ${Date.now() % 65535} // Generate unique ID from timestamp
                   let auditScore: Int8 = ${score}
                   AuditRegistry.addAudit(
-                    _contract: 0xf8d6e0586b0a20c3,
+                    _contract: "${repoOwner}:${contractName}",
                     _id: auditId,
                     _score: auditScore,
                     _timestamp: ${Math.floor(Date.now() / 1000)},
@@ -94,7 +108,7 @@ export default function UploadScoreButton({ auditReport }: UploadScoreButtonProp
                   )
 
                   // Get and log the updated audits
-                  let audits = AuditRegistry.getAudit(_contract: 0xf8d6e0586b0a20c3)
+                  let audits = AuditRegistry.getAudit(_contract: "${repoOwner}:${contractName}")
                   if let audits = audits {
                       for audit in audits {
                           log("Audit ID: ".concat(audit.id.toString()))

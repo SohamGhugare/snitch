@@ -16,28 +16,27 @@ interface SearchAuditsProps {
   placeholder?: string;
 }
 
-export default function SearchAudits({ placeholder = "Enter contract address..." }: SearchAuditsProps) {
+export default function SearchAudits({ placeholder = "Enter contract ID (owner:name)..." }: SearchAuditsProps) {
   const [contractAddress, setContractAddress] = useState("");
   const [searchInitiated, setSearchInitiated] = useState(false);
 
   const { data: audits, isLoading, error, refetch } = useFlowQuery({
     cadence: `
-      import AuditRegistry from 0x2655b0e78244c4fa
+      import AuditRegistry from 0xd61e4386e551be09
 
       access(all)
-      fun main(): [AuditRegistry.Audit]? {
-          let audits = AuditRegistry.getAudit(_contract: ${contractAddress || "0x0"})
+      fun main(contractAddress: String): [AuditRegistry.Audit]? {
+          let audits = AuditRegistry.getAudit(_contract: contractAddress)
           return audits
       }
     `,
+    args: (arg, t) => [arg(contractAddress, t.String)],
     query: { enabled: searchInitiated },
   });
 
-  const auditResults = audits as Audit[] | undefined;
-
   const handleSearch = () => {
     if (!contractAddress) {
-      toast.error("Please enter a contract address", {
+      toast.error("Please enter a contract ID", {
         style: {
           background: '#000',
           color: '#ff4444',
@@ -47,9 +46,25 @@ export default function SearchAudits({ placeholder = "Enter contract address..."
       });
       return;
     }
+
+    // Validate format (owner:name)
+    if (!contractAddress.includes(':')) {
+      toast.error("Invalid format. Please use 'owner:contractName'", {
+        style: {
+          background: '#000',
+          color: '#ff4444',
+          border: '1px solid #ff4444',
+          fontFamily: 'monospace',
+        },
+      });
+      return;
+    }
+
     setSearchInitiated(true);
     refetch();
   };
+
+  const auditResults = audits as Audit[] | undefined;
 
   return (
     <div className="w-full max-w-xl">
@@ -106,8 +121,8 @@ export default function SearchAudits({ placeholder = "Enter contract address..."
         </div>
 
         {error && (
-          <div className="p-4 border border-red-500 bg-black/20 backdrop-blur-sm text-red-400 font-mono">
-            Error: {error.message}
+          <div className="text-red-400 font-mono">
+            Failed to fetch audits. Please try again.
           </div>
         )}
 

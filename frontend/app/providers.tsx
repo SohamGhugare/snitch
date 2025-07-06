@@ -12,6 +12,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         accessNodeUrl: 'https://rest-testnet.onflow.org',
         flowNetwork: 'testnet',
         discoveryWallet: 'https://fcl-discovery.onflow.org/testnet/authn',
+        walletconnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
       }}
       flowJson={flowJson}
     >

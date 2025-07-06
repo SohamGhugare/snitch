@@ -66,6 +66,7 @@ export default function SmartContractsButton() {
   const [auditError, setAuditError] = useState<string>("");
   const [showAuditReport, setShowAuditReport] = useState(false);
   const [showStepper, setShowStepper] = useState(false);
+  const [repoOwner, setRepoOwner] = useState<string>("");
   const [steps, setSteps] = useState([
     { label: "Fetching Smart Contract contents", done: false, active: false },
     { label: "Auditing smart contract", done: false, active: false },
@@ -94,6 +95,8 @@ export default function SmartContractsButton() {
       if (!owner || !repo) {
         throw new Error("Invalid GitHub URL format");
       }
+
+      setRepoOwner(owner);
 
       const response = await fetch(`/api/get-smart-contracts?owner=${encodeURIComponent(owner)}&repo=${encodeURIComponent(repo)}`, {
         method: "GET",
@@ -172,6 +175,12 @@ export default function SmartContractsButton() {
     } finally {
       setAuditLoading(false);
     }
+  };
+
+  const getContractNameFromPath = (path: string) => {
+    const parts = path.split('/');
+    const filename = parts[parts.length - 1];
+    return filename.split('.')[0]; // Remove file extension
   };
 
   return (
@@ -275,7 +284,11 @@ export default function SmartContractsButton() {
           <div className="w-full mt-6 p-4 bg-black/30 rounded border border-[#00ff9d] backdrop-blur-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold text-[#00ff9d] font-mono">Audit Report</h2>
-              <UploadScoreButton auditReport={auditReport} />
+              <UploadScoreButton 
+                auditReport={auditReport} 
+                repoOwner={repoOwner}
+                contractName={getContractNameFromPath(selectedContract)}
+              />
             </div>
             <pre className="overflow-x-auto text-sm text-white bg-black/50 p-4 rounded font-mono whitespace-pre-wrap">
               {auditReport}
