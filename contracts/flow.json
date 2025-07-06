@@ -4,7 +4,7 @@
 			"source": "cadence/contracts/AuditRegistry.cdc",
 			"aliases": {
 				"testing": "0000000000000007",
-				"testnet": "0x2655b0e78244c4fa"
+				"testnet": "2655b0e78244c4fa"
 			}
 		},
 		"Counter": {
@@ -33,6 +33,13 @@
 			"key": {
 				"type": "file",
 				"location": "snitch-test1.pkey"
+			}
+		},
+		"snitch-test2": {
+			"address": "d61e4386e551be09",
+			"key": {
+				"type": "file",
+				"location": "snitch-test2.pkey"
 			}
 		},
 		"test": {
@@ -64,6 +71,9 @@
 		},
 		"testnet": {
 			"snitch-test1": [
+				"AuditRegistry"
+			],
+			"snitch-test2": [
 				"AuditRegistry"
 			],
 			"testnet-acc": [

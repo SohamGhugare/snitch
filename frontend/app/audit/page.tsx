@@ -286,7 +286,7 @@ export default function AuditPage() {
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2">
                     <span className="text-white/30">{">_"}</span>
-                    <h2 className="text-green-400">audit_report.txt</h2>
+                    <h2 className="text-green-400">audit_report.md</h2>
                   </div>
                   <UploadScoreButton 
                     auditReport={auditReport} 

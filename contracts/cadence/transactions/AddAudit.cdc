@@ -9,10 +9,10 @@ transaction {
         // Add audit to the audit registry
         let auditId: UInt16 = 2
         let auditScore: Int8 = 96
-        AuditRegistry.addAudit(_contract: 0xf8d6e0586b0a20c3, _id: auditId, _score: auditScore, _timestamp: 1714953600, _auditor: 0x01, _reportHash: "0x78907")
+        AuditRegistry.addAudit(_contract: "SohamGhugare:snitch", _id: auditId, _score: auditScore, _timestamp: 1714953600, _auditor: 0x01, _reportHash: "0x78907")
 
         // Get audit from the audit registry
-        let audits = AuditRegistry.getAudit(_contract: 0xf8d6e0586b0a20c3)
+        let audits = AuditRegistry.getAudit(_contract: "SohamGhugare:snitch")
 
         if let audits = audits {
             for audit in audits {

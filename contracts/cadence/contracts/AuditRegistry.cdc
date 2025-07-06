@@ -2,7 +2,7 @@ access(all)
 contract AuditRegistry {
 
     // Event to be emitted when an audit is added
-    access(all) event AuditAdded(_contract: Address, _id: UInt16, _score: Int8)
+    access(all) event AuditAdded(_contract: String, _id: UInt16, _score: Int8)
 
     // Audit struct
     access(all)
@@ -22,14 +22,14 @@ contract AuditRegistry {
         }
     }
 
-    access(all) var audits: {Address: [Audit]}
+    access(all) var audits: {String: [Audit]}
 
     init() {
         self.audits = {}
     }
 
     // Add audit to the audit registry
-    access(all) fun addAudit(_contract: Address, _id: UInt16, _score: Int8, _timestamp: Int64, _auditor: Address, _reportHash: String) {
+    access(all) fun addAudit(_contract: String, _id: UInt16, _score: Int8, _timestamp: Int64, _auditor: Address, _reportHash: String) {
         let audit = Audit(_id: _id, _score: _score, _timestamp: _timestamp, _auditor: _auditor, _reportHash: _reportHash)
         self.audits[_contract] = self.audits[_contract] ?? []
         self.audits[_contract]!.append(audit)
@@ -37,7 +37,7 @@ contract AuditRegistry {
     }
 
     // Get audit from the audit registry
-    access(all) fun getAudit(_contract: Address): [Audit]? {
+    access(all) fun getAudit(_contract: String): [Audit]? {
         return self.audits[_contract]
     }
 }
