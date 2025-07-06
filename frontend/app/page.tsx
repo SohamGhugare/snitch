@@ -64,7 +64,7 @@ export default function Home() {
           </div>
 
           {/* Search Terminal Section - Below the fold */}
-          <div id="search-section" className="w-full min-h-screen flex items-start justify-center px-4 pt-24 pb-12">
+          <div id="search-section" className="min-h-screen w-full flex items-center justify-center px-4">
             <div className="w-full max-w-4xl bg-black/80 backdrop-blur-sm border border-[#00ff9d]/30 rounded-lg p-8 shadow-[0_0_50px_rgba(0,255,157,0.1)] terminal-window">
               {/* Terminal header */}
               <div className="flex items-center gap-2 mb-8">
@@ -77,14 +77,14 @@ export default function Home() {
               {/* Search Terminal Title */}
               <div className="space-y-2 mb-8">
                 <h2 className="text-4xl font-bold text-[#00ff9d] font-mono">
-                  Sniff out the logs
+                  Search Audit Logs
                 </h2>
                 <p className="text-white/50 font-mono">
                   No trust required
                 </p>
               </div>
               
-              <SearchAudits />
+              <SearchAudits placeholder="Enter Contract ID" />
               <SignedIn>
               </SignedIn>
             </div>

@@ -12,7 +12,11 @@ interface Audit {
   reportHash: string;
 }
 
-export default function SearchAudits() {
+interface SearchAuditsProps {
+  placeholder?: string;
+}
+
+export default function SearchAudits({ placeholder = "Enter contract address..." }: SearchAuditsProps) {
   const [contractAddress, setContractAddress] = useState("");
   const [searchInitiated, setSearchInitiated] = useState(false);
 
@@ -48,8 +52,7 @@ export default function SearchAudits() {
   };
 
   return (
-    <div className="w-full max-w-xl mb-12">
-      <h2 className="text-2xl font-mono text-[#00ff9d] mb-4">Search Audits</h2>
+    <div className="w-full max-w-xl">
       <div className="flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
@@ -57,7 +60,7 @@ export default function SearchAudits() {
               type="text"
               value={contractAddress}
               onChange={(e) => setContractAddress(e.target.value)}
-              placeholder="Enter contract address..."
+              placeholder={placeholder}
               className="w-full px-4 py-2 bg-black/20 backdrop-blur-sm border border-white/20 
                        text-white font-mono placeholder:text-white/50
                        focus:outline-none focus:border-[#00ff9d] transition-colors"
