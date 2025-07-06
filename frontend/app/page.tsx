@@ -4,8 +4,20 @@ import SmartContractsButton from "./components/SmartContractsButton";
 import SearchAudits from "./components/SearchAudits";
 import { SignedIn } from "@clerk/nextjs";
 import { ChevronDown } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Check if we should scroll to search section
+    if (searchParams.get('scroll') === 'search') {
+      const searchSection = document.getElementById('search-section');
+      searchSection?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [searchParams]);
+
   const scrollToSearch = () => {
     const searchSection = document.getElementById('search-section');
     searchSection?.scrollIntoView({ behavior: 'smooth' });

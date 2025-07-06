@@ -6,8 +6,12 @@ import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/nextjs';
 import { WalletConnectButton } from './WalletConnectButton';
 import { useEffect } from 'react';
 import * as fcl from '@onflow/fcl';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function Navbar() {
+  const router = useRouter();
+  const pathname = usePathname();
+
   useEffect(() => {
     fcl.config(
       {
@@ -17,6 +21,17 @@ export default function Navbar() {
       }
     )
   }, []);
+
+  const handleSearchClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (pathname === '/') {
+      // If on home page, scroll to search section
+      document.getElementById('search-section')?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // If on another page, navigate to home and then scroll
+      router.push('/?scroll=search');
+    }
+  };
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b border-[#00ff9d]/10">
@@ -36,6 +51,13 @@ export default function Navbar() {
           <span className="text-2xl font-bold text-white/90 font-mono">Snitch</span>
         </Link>
         <div className="flex items-center gap-4">
+          <a 
+            href="#search-section" 
+            onClick={handleSearchClick}
+            className="text-white/70 hover:text-[#00ff9d] transition-colors font-mono mr-10"
+          >
+            Audit Logs
+          </a>
           <WalletConnectButton />
           <SignedOut>
             <SignInButton oauthFlow="popup" mode="modal">
