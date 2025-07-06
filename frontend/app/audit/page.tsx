@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import UploadScoreButton from "../components/UploadScoreButton";
 
 interface SmartContractFile {
@@ -62,7 +62,6 @@ At the end of the report, calculate and display a final audit score out of 100 p
 Audit Score: 85`;
 
 export default function AuditPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const owner = searchParams.get('owner');
   const repo = searchParams.get('repo');
