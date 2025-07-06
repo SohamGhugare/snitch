@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const auditReport = response.data.choices[0].message.content;
     return NextResponse.json({ auditReport });
   } catch (error: unknown) {
-    console.error(error);
+    console.error('Audit API Error:', error);
     return NextResponse.json({ error: (error as Error).message }, { status: 500 });
   }
 } 
