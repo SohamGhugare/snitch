@@ -267,13 +267,15 @@ export default function AuditPage() {
 
             {/* View Report Button */}
             {auditReport && steps[1].status === 'completed' && !showAuditReport && (
-              <div className="flex justify-center">
+              <div className="flex justify-center mt-8">
                 <button
                   onClick={() => setShowAuditReport(true)}
-                  className="text-white/70 hover:text-green-400 transition-colors group flex items-center gap-2"
+                  className="px-6 py-3 bg-green-400/10 border border-green-400/50 
+                           text-green-400 hover:bg-green-400/20 transition-colors 
+                           flex items-center gap-3 font-semibold"
                 >
-                  <span className="text-white/30 group-hover:text-green-400/50">{">_"}</span>
-                  cat audit_report.txt
+                  <span className="text-white/30">{">_"}</span>
+                  View Report
                 </button>
               </div>
             )}
