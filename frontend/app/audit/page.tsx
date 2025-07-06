@@ -14,52 +14,88 @@ interface Step {
   status: 'pending' | 'loading' | 'completed';
 }
 
-const SYSTEM_PROMPT = `You are an expert smart contract auditor and performance optimizer. You will receive a smart contract's source code and your job is to perform a **deep technical audit** and **suggest optimal improvements** across multiple dimensions. If the provided code is not a solidty or cadence smart contract, you should return "This is not a valid smart contract. We currently only support solidty and cadence smart contracts.".
+// const SYSTEM_PROMPT = `You are an expert smart contract auditor and performance optimizer. You will receive a smart contract's source code and your job is to perform a **deep technical audit** and **suggest optimal improvements** across multiple dimensions. If the provided code is not a solidty or cadence smart contract, you should return "This is not a valid smart contract. We currently only support solidty and cadence smart contracts.".
 
-Go through the code carefully and generate a detailed, structured report with findings and fixes for each of the following categories:
+// Go through the code carefully and generate a detailed, structured report with findings and fixes for each of the following categories:
 
-### 1. **Access Control**
-- Are functions properly protected using onlyOwner, onlyAdmin, or role-based restrictions?
-- Is there a risk of unauthorized access?
-- Are upgrade or configuration functions adequately restricted?
+// ### 1. **Access Control**
+// - Are functions properly protected using onlyOwner, onlyAdmin, or role-based restrictions?
+// - Is there a risk of unauthorized access?
+// - Are upgrade or configuration functions adequately restricted?
 
-### 2. **Gas and Storage Optimization**
-- Are there any loops over dynamic storage arrays?
-- Can calldata be used instead of memory?
-- Are expensive operations minimized or batched?
-- Are uint256 variables packed efficiently where applicable?
-- Are mappings or structs used correctly to reduce slot usage?
+// ### 2. **Gas and Storage Optimization**
+// - Are there any loops over dynamic storage arrays?
+// - Can calldata be used instead of memory?
+// - Are expensive operations minimized or batched?
+// - Are uint256 variables packed efficiently where applicable?
+// - Are mappings or structs used correctly to reduce slot usage?
 
-### 3. **Logic Integrity and Bugs**
-- Is the business logic sound and aligned with the intended protocol behavior?
-- Any reentrancy risks?
-- Any edge cases or scenarios that can break the contract?
-- Look for unhandled underflows/overflows (especially if using older Solidity).
+// ### 3. **Logic Integrity and Bugs**
+// - Is the business logic sound and aligned with the intended protocol behavior?
+// - Any reentrancy risks?
+// - Any edge cases or scenarios that can break the contract?
+// - Look for unhandled underflows/overflows (especially if using older Solidity).
 
-### 4. **Security Vulnerabilities**
-- Are there any known vulnerabilities (e.g., front-running, flash loan attack surfaces, denial of service via unexpected revert)?
-- Check for issues like timestamp dependency, tx.origin authentication, and delegatecall misuse.
+// ### 4. **Security Vulnerabilities**
+// - Are there any known vulnerabilities (e.g., front-running, flash loan attack surfaces, denial of service via unexpected revert)?
+// - Check for issues like timestamp dependency, tx.origin authentication, and delegatecall misuse.
 
-### 5. **Upgradeability and Proxy Compatibility**
-- If upgradeable, are storage layouts handled properly?
-- Are initializers used instead of constructors?  
+// ### 5. **Upgradeability and Proxy Compatibility**
+// - If upgradeable, are storage layouts handled properly?
+// - Are initializers used instead of constructors?  
 
----
+// ---
 
-**Output Format:**  (Do not use emojis)
-Generate your response in a structured audit report format with the following sections per finding:
-- **Finding Type**: [Optimization / Security / Style / Gas / Logic]
-- **Severity**: [High / Medium / Low / Informational]
-- **Description**: A short summary of the issue
-- **Explanation**: Why it's a problem and potential impact
-- **Recommendation**: How to fix or improve it
-- **Code Reference**: Line numbers or code snippets involved
+// **Output Format:**  (Do not use emojis)
+// Generate your response in a structured audit report format with the following sections per finding:
+// - **Finding Type**: [Optimization / Security / Style / Gas / Logic]
+// - **Severity**: [High / Medium / Low / Informational]
+// - **Description**: A short summary of the issue
+// - **Explanation**: Why it's a problem and potential impact
+// - **Recommendation**: How to fix or improve it
+// - **Code Reference**: Line numbers or code snippets involved
 
----
+// ---
 
-At the end of the report, calculate and display a final audit score out of 100 points with the below format.
+// At the end of the report, calculate and display a final audit score out of 100 points with the below format.
 
-Audit Score: 85`;
+// Audit Score: 85`;
+
+const SYSTEM_PROMPT = `You are a world-class smart contract auditor. Your task is to deeply analyze the following smart contract code written in {{LANGUAGE}} (either Solidity .sol or Cadence .cdc).
+
+Perform a thorough audit and produce a well-structured, professional report that includes:
+
+Executive Summary
+A concise overview of the contract's purpose and major findings.
+
+Vulnerabilities
+List all detected security vulnerabilities, categorizing them as Critical, High, Medium, Low, or Informational.
+For each issue:
+
+Include the line number(s) and a code snippet from the contract
+
+Explain why it is a problem
+
+Propose a fix or mitigation
+
+Gas & Storage Optimizations (Solidity) / Resource Optimization (Cadence)
+Suggest optimizations that reduce gas costs, improve storage efficiency, or optimize resource handling.
+
+Code Quality & Best Practices
+Identify any violations of language-specific best practices, redundant code, improper naming, or logic flaws.
+
+Access Control & Authorization Checks
+Analyze the access control model. Ensure proper use of onlyOwner, access(all), admin, etc., and validate all privileged functions.
+
+Test Coverage & Upgradeability Notes (if applicable)
+Comment on missing test coverage, and whether the contract is upgradeable (e.g., via proxies, contracts using delegatecall, or Flow upgrade mechanisms).
+
+Overall Code Design Assessment
+Highlight the strengths and potential long-term maintainability concerns.
+
+At the end of the report, append a final audit score (on a scale of 0–100)
+Format it like this:
+Audit Score: XX`;
 
 export default function AuditPage() {
   const searchParams = useSearchParams();

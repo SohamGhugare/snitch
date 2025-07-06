@@ -7,6 +7,7 @@ import {
   useFlowCurrentUser,
 } from "@onflow/kit";
 import toast from 'react-hot-toast';
+import { pinata } from "@/app/utils/config";
 
 interface UploadScoreButtonProps {
   auditReport: string;
@@ -17,6 +18,9 @@ interface UploadScoreButtonProps {
 export default function UploadScoreButton({ auditReport, repoOwner, contractName }: UploadScoreButtonProps) {
   const { user } = useFlowCurrentUser();
   const [showTxId, setShowTxId] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [reportCid, setReportCid] = useState<string>('');
+  
   const {
     mutate: uploadAudit,
     isPending: txPending,
@@ -31,7 +35,6 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
   // Monitor transaction status
   useEffect(() => {
     if (txId && transactionStatus?.status === 3) {
-      // Transaction is successful
       toast.success("Audit score uploaded successfully!", {
         icon: '🚀',
         style: {
@@ -44,6 +47,50 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
       setShowTxId(true);
     }
   }, [transactionStatus?.status, txId]);
+
+  const uploadToPinata = async () => {
+    try {
+      setUploading(true);
+      
+      // Convert audit report to markdown file
+      const mdContent = `# Smart Contract Audit Report\n\n${auditReport}`;
+      const mdFile = new File([mdContent], 'audit-report.md', { type: 'text/markdown' });
+
+      // Get upload URL from our API
+      const urlRequest = await fetch("/api/url");
+      const urlResponse = await urlRequest.json();
+      
+      if (urlResponse.error) {
+        throw new Error(urlResponse.error);
+      }
+
+      // Upload to Pinata
+      const upload = await pinata.upload.public
+        .file(mdFile)
+        .url(urlResponse.url);
+
+
+      if (!upload?.cid) {
+        throw new Error('Failed to get IPFS hash from Pinata');
+      }
+
+      setReportCid(upload.cid);
+      return upload.cid;
+    } catch (error) {
+      console.error('Error uploading to Pinata:', error);
+      toast.error("Failed to upload audit report", {
+        style: {
+          background: '#000',
+          color: '#ff4444',
+          border: '1px solid #ff4444',
+          fontFamily: 'monospace',
+        },
+      });
+      throw error;
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleUpload = async () => {
     if (!user?.loggedIn) {
@@ -87,6 +134,12 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
     }
 
     try {
+      // First upload to Pinata
+      const cid = await uploadToPinata();
+
+      console.log("cid", cid);
+
+      // Then upload to Flow
       uploadAudit({
         cadence: `
           import AuditRegistry from 0xd61e4386e551be09
@@ -106,7 +159,7 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
                     _score: auditScore,
                     _timestamp: ${Math.floor(Date.now() / 1000)},
                     _auditor: ${user.addr},
-                    _reportHash: "${Buffer.from(auditReport).toString('hex').substring(0, 10)}"
+                    _reportHash: "${cid}"
                   )
 
                   // Get and log the updated audits
@@ -170,42 +223,44 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
 
   return (
     <div className="flex items-center gap-3">
-      <button
-        onClick={handleUpload}
-        disabled={txPending}
-        className={`
-          px-6 py-2 border-2 border-[#00ff9d] text-[#00ff9d] hover:bg-[#00ff9d] hover:text-black 
-          transition-all duration-300 font-mono flex items-center gap-2
-          bg-black/20 backdrop-blur-sm
-          ${txPending ? 'opacity-50 cursor-not-allowed' : ''}
-        `}
-      >
-        <svg 
-          className={`w-5 h-5 transition-transform duration-300 ${txPending ? 'animate-spin' : ''}`}
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
+      {!showTxId && (
+        <button
+          onClick={handleUpload}
+          disabled={txPending || uploading}
+          className={`
+            px-6 py-2 border-2 border-[#00ff9d] text-[#00ff9d] hover:bg-[#00ff9d] hover:text-black 
+            transition-all duration-300 font-mono flex items-center gap-2
+            bg-black/20 backdrop-blur-sm
+            ${(txPending || uploading) ? 'opacity-50 cursor-not-allowed' : ''}
+          `}
         >
-          {txPending ? (
-            // Loading spinner icon
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          ) : (
-            // Upload icon
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={2} 
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-            />
-          )}
-        </svg>
-        {txPending ? 'Uploading...' : 'Upload Score'}
-      </button>
+          <svg 
+            className={`w-5 h-5 transition-transform duration-300 ${txPending || uploading ? 'animate-spin' : ''}`}
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            {txPending || uploading ? (
+              // Loading spinner icon
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            ) : (
+              // Upload icon
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+              />
+            )}
+          </svg>
+          {uploading ? 'Uploading to IPFS...' : txPending ? 'Uploading to Flow...' : 'Upload Score'}
+        </button>
+      )}
       {showTxId && txId && (
         <div className="flex items-center gap-2 text-sm">
           <span className="text-white/30">{">_"}</span>
@@ -218,6 +273,20 @@ export default function UploadScoreButton({ auditReport, repoOwner, contractName
           >
             {txId.slice(0, 8)}...{txId.slice(-6)}
           </a>
+          {reportCid && (
+            <>
+              <span className="text-white/30 ml-2">{">_"}</span>
+              <span className="text-white/70 font-mono">ipfs:</span>
+              <a 
+                href={`https://gateway.pinata.cloud/ipfs/${reportCid}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#00ff9d] hover:text-[#00ff9d]/80 transition-colors font-mono"
+              >
+                {reportCid.slice(0, 8)}...{reportCid.slice(-6)}
+              </a>
+            </>
+          )}
         </div>
       )}
     </div>
