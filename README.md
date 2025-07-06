@@ -1,5 +1,5 @@
 # Snitch — AI-Powered On-Chain Smart Contract Audit Registry
-<img src="./cover-image.png" alt="Cover Image">
+<img src="./website.png" alt="Cover Image">
 
 Welcome to **Snitch**, a next-gen platform that automatically audits your smart contracts and stores immutable audit scores on-chain — bringing trustless, transparent, and instant security verification to Web3.
 
